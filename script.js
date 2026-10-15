@@ -590,12 +590,18 @@ navLinks.querySelectorAll("a").forEach((link) => {
   });
 });
 
+
 /* ==========================================
    STARTUP
    ========================================== */
 
-$("#currentYear").textContent = new Date().getFullYear();
+const currentYearElement = document.querySelector("#currentYear");
+
+if (currentYearElement) {
+  currentYearElement.textContent = new Date().getFullYear();
+}
 
 renderProjects();
 
 console.log("ROBO FORGE DAY 1 READY");
+
