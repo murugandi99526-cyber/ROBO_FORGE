@@ -605,3 +605,203 @@ renderProjects();
 
 console.log("ROBO FORGE DAY 1 READY");
 
+/* ==========================================
+   ROBO FORGE — COMPONENT WORKSPACE
+   ========================================== */
+
+const forgeParts = [
+  { id: "arduino", name: "Arduino Uno", type: "Controller", icon: "🟦", color: "#1689ff" },
+  { id: "esp32", name: "ESP32 Board", type: "Controller", icon: "🔷", color: "#8b5cf6" },
+  { id: "ultrasonic", name: "Ultrasonic Sensor", type: "Sensor", icon: "📡", color: "#06b6d4" },
+  { id: "ir", name: "IR Sensor", type: "Sensor", icon: "🔴", color: "#ef4444" },
+  { id: "temperature", name: "Temperature Sensor", type: "Sensor", icon: "🌡️", color: "#f97316" },
+  { id: "servo", name: "Servo Motor", type: "Motor", icon: "⚙️", color: "#eab308" },
+  { id: "motor", name: "DC Motor", type: "Motor", icon: "🔩", color: "#22c55e" },
+  { id: "battery", name: "Battery Pack", type: "Power", icon: "🔋", color: "#84cc16" },
+  { id: "led", name: "LED", type: "Output", icon: "💡", color: "#facc15" },
+  { id: "buzzer", name: "Buzzer", type: "Output", icon: "🔊", color: "#ec4899" },
+  { id: "wires", name: "Jumper Wires", type: "Connection", icon: "〰️", color: "#fb7185" }
+];
+
+const forgeLibrary = document.querySelector("#componentLibrary");
+const forgeSearch = document.querySelector("#componentSearch");
+const forgeGrid = document.querySelector("#workspaceGrid");
+const forgeStatus = document.querySelector("#workspaceStatus");
+const forgeReset = document.querySelector("#resetWorkspace");
+const forgeSave = document.querySelector("#saveWorkspace");
+
+let forgeWorkspace = [];
+
+try {
+  const saved = JSON.parse(
+    localStorage.getItem("roboForgeWorkspaceV1") || "[]"
+  );
+
+  if (Array.isArray(saved)) {
+    forgeWorkspace = saved.filter(id =>
+      forgeParts.some(part => part.id === id)
+    );
+  }
+} catch (error) {
+  forgeWorkspace = [];
+}
+
+function renderForgeLibrary(searchText = "") {
+  if (!forgeLibrary) return;
+
+  const query = searchText.trim().toLowerCase();
+
+  const filtered = forgeParts.filter(part =>
+    `${part.name} ${part.type}`.toLowerCase().includes(query)
+  );
+
+  if (filtered.length === 0) {
+    forgeLibrary.innerHTML = "<p>No matching components found.</p>";
+    return;
+  }
+
+  forgeLibrary.innerHTML = filtered.map(part => `
+    <div style="
+      display:flex;align-items:center;gap:12px;
+      padding:12px;margin-bottom:10px;
+      background:#101d30;border:1px solid #263b55;
+      border-radius:12px;">
+      <div style="
+        width:46px;height:46px;display:grid;
+        place-items:center;border-radius:10px;
+        background:${part.color}25;
+        border:1px solid ${part.color};
+        font-size:24px;">${part.icon}</div>
+      <div style="flex:1;min-width:0">
+        <strong>${part.name}</strong>
+        <div style="font-size:12px;color:#9aabc2">
+          ${part.type}
+        </div>
+      </div>
+      <button type="button"
+        class="button button-primary"
+        data-add-component="${part.id}"
+        style="padding:9px 12px">+ Add</button>
+    </div>
+  `).join("");
+}
+
+function renderForgeWorkspace() {
+  if (!forgeGrid || !forgeStatus) return;
+
+  if (forgeWorkspace.length === 0) {
+    forgeGrid.innerHTML = `
+      <div style="width:100%;text-align:center;padding:50px 12px;color:#9aabc2">
+        <div style="font-size:42px">🛠️</div>
+        <strong>Your workspace is ready</strong>
+        <p>Add components from the library to begin!</p>
+      </div>
+    `;
+
+    forgeStatus.textContent = "No components added yet.";
+    return;
+  }
+
+  forgeGrid.innerHTML = forgeWorkspace.map((id, index) => {
+    const part = forgeParts.find(item => item.id === id);
+    if (!part) return "";
+
+    return `
+      <div style="
+        width:125px;min-height:130px;padding:14px 8px;
+        text-align:center;background:#101d30;
+        border:1px solid ${part.color};border-radius:14px;
+        box-sizing:border-box;">
+        <div style="
+          width:64px;height:64px;margin:0 auto 10px;
+          display:grid;place-items:center;
+          border-radius:12px;background:${part.color}25;
+          font-size:34px;">${part.icon}</div>
+        <strong style="font-size:12px;display:block">
+          ${part.name}
+        </strong>
+        <button type="button"
+          data-remove-component="${index}"
+          style="margin-top:9px;background:transparent;
+          border:1px solid #53657c;color:#fff;
+          border-radius:7px;padding:4px 9px;cursor:pointer">
+          Remove
+        </button>
+      </div>
+    `;
+  }).join("");
+
+  forgeStatus.textContent =
+    `${forgeWorkspace.length} component(s) in your workspace.`;
+}
+
+function saveForgeWorkspace() {
+  try {
+    localStorage.setItem(
+      "roboForgeWorkspaceV1",
+      JSON.stringify(forgeWorkspace)
+    );
+    return true;
+  } catch (error) {
+    console.error("Could not save workspace:", error);
+    return false;
+  }
+}
+
+if (forgeLibrary) {
+  forgeLibrary.addEventListener("click", event => {
+    const button = event.target.closest("[data-add-component]");
+    if (!button) return;
+
+    const id = button.dataset.addComponent;
+    if (!forgeParts.some(part => part.id === id)) return;
+
+    forgeWorkspace.push(id);
+    renderForgeWorkspace();
+    saveForgeWorkspace();
+  });
+}
+
+if (forgeGrid) {
+  forgeGrid.addEventListener("click", event => {
+    const button = event.target.closest("[data-remove-component]");
+    if (!button) return;
+
+    const index = Number(button.dataset.removeComponent);
+    if (!Number.isInteger(index)) return;
+
+    forgeWorkspace.splice(index, 1);
+    renderForgeWorkspace();
+    saveForgeWorkspace();
+  });
+}
+
+if (forgeSearch) {
+  forgeSearch.addEventListener("input", () => {
+    renderForgeLibrary(forgeSearch.value);
+  });
+}
+
+if (forgeReset) {
+  forgeReset.addEventListener("click", () => {
+    forgeWorkspace = [];
+    renderForgeWorkspace();
+    saveForgeWorkspace();
+  });
+}
+
+if (forgeSave) {
+  forgeSave.addEventListener("click", () => {
+    const saved = saveForgeWorkspace();
+    forgeStatus.textContent = saved
+      ? `Saved! ${forgeWorkspace.length} component(s) in your workspace.`
+      : "Unable to save. Please check your browser storage.";
+  });
+}
+
+renderForgeLibrary();
+renderForgeWorkspace();
+
+console.log("ROBO FORGE WORKSPACE READY");
+
+
