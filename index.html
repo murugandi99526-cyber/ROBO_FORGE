@@ -183,6 +183,52 @@
       </section>
 
       <section class="section-wrap lab-section" id="lab">
+        
+<section class="section-wrap" id="workspace">
+  <div class="section-heading">
+    <div>
+      <div class="eyebrow">04 / 3D FORGE STUDIO</div>
+      <h2>Build your <span class="gradient-text">invention.</span></h2>
+      <p>Select electronics components and add them to your workspace.</p>
+    </div>
+  </div>
+
+  <div class="generator-layout">
+    <div class="panel">
+      <label class="field-label" for="componentSearch">
+        SEARCH COMPONENTS
+      </label>
+      <input id="componentSearch" type="search"
+        placeholder="Search Arduino, sensor, motor..."
+        style="width:100%;padding:12px;margin-bottom:16px;border-radius:10px;background:#091221;color:white;border:1px solid #2a3a51">
+
+      <div id="componentLibrary" class="parts-list">
+        Loading components...
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>My Workspace</h3>
+      <p id="workspaceStatus" style="margin:12px 0;color:#8d9bb3">
+        No components added yet.
+      </p>
+
+      <div id="workspaceGrid"
+        style="min-height:220px;padding:14px;border:1px dashed #36536f;border-radius:12px;display:flex;flex-wrap:wrap;align-content:flex-start;gap:12px">
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px">
+        <button class="button button-secondary" id="resetWorkspace">
+          Clear workspace
+        </button>
+        <button class="button button-primary" id="saveWorkspace">
+          Save workspace
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
         <div class="section-heading">
           <div>
             <div class="eyebrow">02 / VIRTUAL LAB</div>
